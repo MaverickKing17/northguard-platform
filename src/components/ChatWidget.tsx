@@ -57,7 +57,7 @@ export const ChatWidget = () => {
       const data = await response.json();
       const assistantMessage: Message = { 
         role: 'assistant', 
-        content: data.content.text || "I'm sorry, I couldn't process that request." 
+        content: data.content[0]?.text || "I'm sorry, I couldn't process that request." 
       };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
@@ -72,7 +72,7 @@ export const ChatWidget = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-[100]">
       <AnimatePresence>
         {isOpen && (
           <motion.div

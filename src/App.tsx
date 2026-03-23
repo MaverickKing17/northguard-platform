@@ -211,28 +211,33 @@ const Sidebar = ({ collapsed, setCollapsed, activeView, setActiveView }: {
 
   return (
     <aside className={cn(
-      "fixed left-0 top-14 bottom-0 bg-[#0D1F47] border-r border-border-subtle transition-all duration-300 z-40 overflow-y-auto overflow-x-hidden",
+      "fixed left-0 top-14 bottom-0 bg-[#0D1F47] border-r border-border-subtle transition-all duration-300 z-50 overflow-y-auto overflow-x-hidden",
       collapsed ? "w-16" : "w-60"
     )}>
       <div className="p-4 flex flex-col gap-6">
         {sections.map((section, idx) => (
           <div key={idx} className="flex flex-col gap-1">
             {!collapsed && (
-              <h3 className="text-[10px] uppercase font-mono text-text-secondary tracking-[0.12em] px-3 mb-1">
+              <h3 className="text-[10px] uppercase font-mono text-text-secondary tracking-[0.12em] px-3 mb-1 select-none">
                 {section.title}
               </h3>
             )}
             {section.items.map((item, i) => (
               <button
                 key={i}
-                onClick={() => setActiveView(item.id)}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveView(item.id);
+                }}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 group w-full text-left",
+                  "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 group w-full text-left cursor-pointer outline-none",
                   activeView === item.id ? "sidebar-item-active" : "sidebar-item-hover text-text-secondary"
                 )}
+                title={item.label}
               >
                 <item.icon className={cn("w-4 h-4 flex-shrink-0", activeView === item.id ? "text-arctic" : "group-hover:text-text-primary")} />
-                {!collapsed && <span className="text-sm font-medium whitespace-nowrap">{item.label}</span>}
+                {!collapsed && <span className="text-sm font-medium whitespace-nowrap pointer-events-none">{item.label}</span>}
               </button>
             ))}
           </div>
@@ -972,14 +977,14 @@ const IncidentDrawer = ({ incident, onClose }: { incident: any, onClose: () => v
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 bg-navy/60 backdrop-blur-sm z-50"
+        className="fixed inset-0 bg-navy/60 backdrop-blur-sm z-[90]"
       />
       <motion.div
         initial={{ x: '100%' }}
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="fixed right-0 top-0 bottom-0 w-[480px] bg-[#0D1F47] border-l border-border-subtle z-50 shadow-2xl flex flex-col"
+        className="fixed right-0 top-0 bottom-0 w-[480px] bg-[#0D1F47] border-l border-border-subtle z-[100] shadow-2xl flex flex-col"
       >
         <div className="p-6 border-b border-border-subtle flex justify-between items-center bg-slate/20">
           <div className="flex items-center gap-3">
@@ -1186,6 +1191,10 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeView]);
+
   const renderContent = () => {
     if (activeView === 'overview') {
       return (
@@ -1233,7 +1242,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-navy text-text-primary selection:bg-ice/30">
       {/* Top Nav */}
-      <header className="fixed top-0 left-0 right-0 h-14 bg-navy border-b border-border-subtle z-50 flex items-center px-4 gap-4">
+      <header className="fixed top-0 left-0 right-0 h-14 bg-navy border-b border-border-subtle z-[60] flex items-center px-4 gap-4">
         <div className="flex items-center gap-3 min-w-[220px]">
           <button 
             onClick={() => setCollapsed(!collapsed)}
