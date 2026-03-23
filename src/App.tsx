@@ -32,6 +32,7 @@ import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { io } from 'socket.io-client';
 
 import { ChatWidget } from './components/ChatWidget';
 
@@ -810,16 +811,16 @@ const IncidentTrendAnalysis = () => {
   );
 };
 
-const IncidentTable = ({ onRowClick }: { onRowClick: (incident: any) => void }) => {
+const IncidentTable = ({ incidents, onRowClick }: { incidents: any[], onRowClick: (incident: any) => void }) => {
   const [searchTerm, setSearchTerm] = useState('');
   
   const filteredIncidents = useMemo(() => {
-    return DATA.incidents.filter(inc => 
+    return incidents.filter(inc => 
       inc.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       inc.assignee.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm]);
+  }, [searchTerm, incidents]);
 
   return (
     <div className="flex flex-col">
@@ -1185,10 +1186,30 @@ export default function App() {
   const [selectedIncident, setSelectedIncident] = useState<any>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeView, setActiveView] = useState('overview');
+  const [incidents, setIncidents] = useState(DATA.incidents);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const socket = io();
+
+    socket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    });
+
+    socket.on('incident:new', (newIncident) => {
+      console.log('New incident received:', newIncident);
+      setIncidents(prev => [newIncident, ...prev]);
+      
+      // Optional: Show a notification or toast here if needed
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -1214,7 +1235,10 @@ export default function App() {
 
           <BottomPanels />
 
-          <IncidentTable onRowClick={(inc) => setSelectedIncident(inc)} />
+          <IncidentTable 
+            incidents={incidents}
+            onRowClick={(inc) => setSelectedIncident(inc)} 
+          />
         </div>
       );
     }

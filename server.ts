@@ -2,9 +2,13 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 import Anthropic from "@anthropic-ai/sdk";
+import http from "http";
+import { Server } from "socket.io";
 
 async function startServer() {
   const app = express();
+  const server = http.createServer(app);
+  const io = new Server(server);
   const PORT = 3000;
 
   app.use(express.json());
@@ -13,6 +17,37 @@ async function startServer() {
   const anthropic = new Anthropic({
     apiKey: process.env.CLAUDE_API_KEY || "",
   });
+
+  // WebSocket logic
+  io.on("connection", (socket) => {
+    console.log("Client connected to WebSocket");
+    
+    socket.on("disconnect", () => {
+      console.log("Client disconnected from WebSocket");
+    });
+  });
+
+  // Mock incident generation for real-time demonstration
+  setInterval(() => {
+    const severities = ['CRITICAL', 'HIGH', 'MEDIUM', 'INFO'];
+    const categories = ['Cyber', 'Fraud', 'Compliance', 'Identity', 'AML'];
+    const assignees = ['M. Okonkwo', 'K. Patel', 'L. Tremblay', 'S. Chen', 'R. Singh'];
+    
+    const newIncident = {
+      id: `INC-2025-${Math.floor(Math.random() * 9000) + 1000}`,
+      severity: severities[Math.floor(Math.random() * severities.length)],
+      category: categories[Math.floor(Math.random() * categories.length)],
+      title: 'Automated Threat Detection — Real-time Event',
+      entity: `RDFI-NODE-${Math.floor(Math.random() * 99)}`,
+      assignee: assignees[Math.floor(Math.random() * assignees.length)],
+      status: 'Investigating',
+      created: 'Just now',
+      sla: '2h',
+      correlatedAlerts: []
+    };
+    
+    io.emit("incident:new", newIncident);
+  }, 45000); // Emit every 45 seconds to keep it visible but not overwhelming
 
   // API routes
   app.post("/api/chat", async (req, res) => {
@@ -59,7 +94,7 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
+  server.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }
