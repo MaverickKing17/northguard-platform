@@ -86,7 +86,10 @@ ChartJS.defaults.set(chartDefaults);
 // --- AI Service ---
 const getGeminiKey = () => {
   try {
-    return process.env.GEMINI_API_KEY || "";
+    // Vite's define plugin replaces the full string process.env.GEMINI_API_KEY
+    // but we should still be careful about the process object itself.
+    const key = typeof process !== 'undefined' && process.env ? process.env.GEMINI_API_KEY : '';
+    return key || "";
   } catch (e) {
     return "";
   }
