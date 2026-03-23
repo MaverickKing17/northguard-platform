@@ -55,9 +55,10 @@ export const ChatWidget = () => {
       }
 
       const data = await response.json();
+      // The server returns { content: { text: "..." } }
       const assistantMessage: Message = { 
         role: 'assistant', 
-        content: data.content[0]?.text || "I'm sorry, I couldn't process that request." 
+        content: data.content?.text || "I'm sorry, I couldn't process that request." 
       };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {

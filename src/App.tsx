@@ -84,7 +84,14 @@ const chartDefaults = {
 ChartJS.defaults.set(chartDefaults);
 
 // --- AI Service ---
-const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+const getGeminiKey = () => {
+  try {
+    return process.env.GEMINI_API_KEY || "";
+  } catch (e) {
+    return "";
+  }
+};
+const genAI = new GoogleGenAI({ apiKey: getGeminiKey() });
 
 // --- Mock Data ---
 const DATA = {
