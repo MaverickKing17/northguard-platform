@@ -11,7 +11,7 @@ import {
   Settings, Share2, Download, RefreshCw, 
   Menu, X, ExternalLink, Filter, ArrowUp, ArrowDown,
   Clock, MapPin, Globe, UserCheck, Database, Zap,
-  BrainCircuit, Link, AlertCircle, Sparkles
+  TrendingUp, BrainCircuit, Link, AlertCircle, Sparkles
 } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import { 
@@ -78,7 +78,7 @@ const chartDefaults = {
   },
 };
 
-Object.assign(ChartJS.defaults, chartDefaults);
+ChartJS.defaults.set(chartDefaults);
 
 // --- AI Service ---
 const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
@@ -306,46 +306,46 @@ const KPICard: React.FC<{ kpi: typeof DATA.kpis[0] }> = ({ kpi }) => {
   );
 };
 
+const threatBarData = {
+  labels: ['Phishing / BEC', 'Credential Stuffing', 'SQL Injection', 'API Abuse', 'Ransomware Probing', 'Insider Threat', 'Supply Chain / 3P'],
+  datasets: [{
+    data: [342, 271, 198, 147, 112, 87, 54],
+    backgroundColor: (context: any) => {
+      const ctx = context.chart.ctx;
+      const gradient = ctx.createLinearGradient(0, 0, 400, 0);
+      gradient.addColorStop(0, '#4A90D9');
+      gradient.addColorStop(1, '#7EC8E3');
+      return gradient;
+    },
+    borderRadius: 4,
+    barThickness: 16,
+  }]
+};
+
+const threatLineData = {
+  labels: Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`),
+  datasets: [
+    {
+      label: 'Critical',
+      data: [5, 3, 2, 4, 8, 12, 10, 8, 15, 20, 18, 25, 30, 28, 35, 40, 38, 35, 30, 25, 20, 15, 10, 8],
+      borderColor: '#E84040',
+      backgroundColor: 'rgba(232, 64, 64, 0.1)',
+      fill: true,
+      tension: 0.4,
+    },
+    {
+      label: 'High',
+      data: [10, 8, 12, 15, 20, 25, 22, 20, 28, 35, 32, 40, 45, 42, 50, 55, 52, 50, 45, 40, 35, 30, 25, 20],
+      borderColor: '#F5A623',
+      backgroundColor: 'rgba(245, 166, 35, 0.1)',
+      fill: true,
+      tension: 0.4,
+    }
+  ]
+};
+
 const ThreatIntelligence = () => {
   const [activeTab, setActiveTab] = useState<'map' | 'vectors' | 'timeline'>('map');
-
-  const barData = {
-    labels: ['Phishing / BEC', 'Credential Stuffing', 'SQL Injection', 'API Abuse', 'Ransomware Probing', 'Insider Threat', 'Supply Chain / 3P'],
-    datasets: [{
-      data: [342, 271, 198, 147, 112, 87, 54],
-      backgroundColor: (context: any) => {
-        const ctx = context.chart.ctx;
-        const gradient = ctx.createLinearGradient(0, 0, 400, 0);
-        gradient.addColorStop(0, '#4A90D9');
-        gradient.addColorStop(1, '#7EC8E3');
-        return gradient;
-      },
-      borderRadius: 4,
-      barThickness: 16,
-    }]
-  };
-
-  const lineData = {
-    labels: Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`),
-    datasets: [
-      {
-        label: 'Critical',
-        data: [5, 3, 2, 4, 8, 12, 10, 8, 15, 20, 18, 25, 30, 28, 35, 40, 38, 35, 30, 25, 20, 15, 10, 8],
-        borderColor: '#E84040',
-        backgroundColor: 'rgba(232, 64, 64, 0.1)',
-        fill: true,
-        tension: 0.4,
-      },
-      {
-        label: 'High',
-        data: [10, 8, 12, 15, 20, 25, 22, 20, 28, 35, 32, 40, 45, 42, 50, 55, 52, 50, 45, 40, 35, 30, 25, 20],
-        borderColor: '#F5A623',
-        backgroundColor: 'rgba(245, 166, 35, 0.1)',
-        fill: true,
-        tension: 0.4,
-      }
-    ]
-  };
 
   return (
     <div className="glass-card flex flex-col h-full">
@@ -399,7 +399,7 @@ const ThreatIntelligence = () => {
         {activeTab === 'vectors' && (
           <div className="h-full">
             <Bar 
-              data={barData} 
+              data={threatBarData} 
               options={{ 
                 indexAxis: 'y', 
                 plugins: { legend: { display: false } },
@@ -411,7 +411,7 @@ const ThreatIntelligence = () => {
         {activeTab === 'timeline' && (
           <div className="h-full">
             <Line 
-              data={lineData} 
+              data={threatLineData} 
               options={{ 
                 plugins: { legend: { position: 'top' } },
                 scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } }
@@ -481,16 +481,25 @@ const AlertFeed = () => {
   );
 };
 
-const BottomPanels = () => {
-  const fraudData = {
-    labels: ['Card-Not-Present', 'Account Takeover', 'Wire/Interac Fraud', 'Identity Fraud', 'Insider Fraud'],
-    datasets: [{
-      data: [38, 24, 19, 12, 7],
-      backgroundColor: ['#E84040', '#F5A623', '#4A90D9', '#805AD5', '#A8BBCF'],
-      borderWidth: 0,
-    }]
-  };
+const fraudDoughnutData = {
+  labels: ['Card-Not-Present', 'Account Takeover', 'Wire/Interac Fraud', 'Identity Fraud', 'Insider Fraud'],
+  datasets: [{
+    data: [38, 24, 19, 12, 7],
+    backgroundColor: ['#E84040', '#F5A623', '#4A90D9', '#805AD5', '#A8BBCF'],
+    borderWidth: 0,
+  }]
+};
 
+const identityRiskData = {
+  labels: ['Tech', 'Fin', 'Ops', 'Risk', 'Exec'],
+  datasets: [
+    { label: 'High', data: [3, 1, 2, 0, 1], backgroundColor: '#E84040' },
+    { label: 'Med', data: [12, 8, 15, 3, 2], backgroundColor: '#F5A623' },
+    { label: 'Normal', data: [287, 142, 398, 87, 23], backgroundColor: '#4A90D9' },
+  ]
+};
+
+const BottomPanels = () => {
   const complianceItems = [
     { label: 'OSFI Guideline B-10 (Third-Party Risk)', value: 98, status: 'Compliant' },
     { label: 'OSFI Guideline B-13 (Cyber Risk)', value: 89, status: 'Review Due', color: 'amber' },
@@ -511,7 +520,7 @@ const BottomPanels = () => {
         <div className="p-4 flex flex-col gap-4">
           <div className="h-40 relative">
             <Doughnut 
-              data={fraudData} 
+              data={fraudDoughnutData} 
               options={{ 
                 cutout: '70%', 
                 plugins: { legend: { display: false } } 
@@ -589,14 +598,7 @@ const BottomPanels = () => {
         <div className="p-4 flex flex-col gap-4">
           <div className="h-32">
             <Bar 
-              data={{
-                labels: ['Tech', 'Fin', 'Ops', 'Risk', 'Exec'],
-                datasets: [
-                  { label: 'High', data: [3, 1, 2, 0, 1], backgroundColor: '#E84040' },
-                  { label: 'Med', data: [12, 8, 15, 3, 2], backgroundColor: '#F5A623' },
-                  { label: 'Normal', data: [287, 142, 398, 87, 23], backgroundColor: '#4A90D9' },
-                ]
-              }} 
+              data={identityRiskData} 
               options={{ 
                 indexAxis: 'y',
                 plugins: { legend: { display: false } },
@@ -635,6 +637,166 @@ const BottomPanels = () => {
   );
 };
 
+const dailyTrendData = {
+  labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+  datasets: [
+    {
+      label: 'Critical Incidents',
+      data: [2, 5, 3, 8, 4, 1, 3],
+      borderColor: '#FF4444',
+      backgroundColor: 'rgba(255, 68, 68, 0.1)',
+      fill: true,
+      tension: 0.4,
+      borderWidth: 2,
+      pointRadius: 3,
+      pointBackgroundColor: '#FF4444',
+    },
+    {
+      label: 'High Severity',
+      data: [8, 12, 7, 15, 10, 4, 6],
+      borderColor: '#F27D26',
+      backgroundColor: 'rgba(242, 125, 38, 0.1)',
+      fill: true,
+      tension: 0.4,
+      borderWidth: 2,
+      pointRadius: 3,
+      pointBackgroundColor: '#F27D26',
+    }
+  ]
+};
+
+const weeklyTrendData = {
+  labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+  datasets: [
+    {
+      label: 'Critical Incidents',
+      data: [18, 24, 15, 22],
+      borderColor: '#FF4444',
+      backgroundColor: 'rgba(255, 68, 68, 0.1)',
+      fill: true,
+      tension: 0.4,
+      borderWidth: 2,
+    },
+    {
+      label: 'High Severity',
+      data: [45, 52, 38, 48],
+      borderColor: '#F27D26',
+      backgroundColor: 'rgba(242, 125, 38, 0.1)',
+      fill: true,
+      tension: 0.4,
+      borderWidth: 2,
+    }
+  ]
+};
+
+const resolutionTrendData = {
+  labels: ['Critical', 'High', 'Medium', 'Low'],
+  datasets: [
+    {
+      label: 'Avg. Resolution Time (Hours)',
+      data: [1.8, 4.2, 12.5, 36.0],
+      backgroundColor: [
+        'rgba(255, 68, 68, 0.6)',
+        'rgba(242, 125, 38, 0.6)',
+        'rgba(0, 255, 255, 0.6)',
+        'rgba(142, 146, 153, 0.6)',
+      ],
+      borderColor: [
+        '#FF4444',
+        '#F27D26',
+        '#00FFFF',
+        '#8E9299',
+      ],
+      borderWidth: 1,
+    }
+  ]
+};
+
+const trendChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: true,
+      position: 'top' as const,
+      labels: {
+        color: '#8E9299',
+        font: { size: 10, family: 'JetBrains Mono' },
+        boxWidth: 12,
+        padding: 15,
+      }
+    },
+    tooltip: {
+      backgroundColor: '#151619',
+      titleFont: { size: 12, family: 'JetBrains Mono' },
+      bodyFont: { size: 11, family: 'JetBrains Mono' },
+      borderColor: 'rgba(255, 255, 255, 0.1)',
+      borderWidth: 1,
+      padding: 10,
+    }
+  },
+  scales: {
+    y: {
+      grid: { color: 'rgba(255, 255, 255, 0.05)' },
+      ticks: { color: '#8E9299', font: { size: 10, family: 'JetBrains Mono' } }
+    },
+    x: {
+      grid: { display: false },
+      ticks: { color: '#8E9299', font: { size: 10, family: 'JetBrains Mono' } }
+    }
+  }
+};
+
+const IncidentTrendAnalysis = () => {
+  const [view, setView] = useState<'daily' | 'weekly'>('daily');
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4 px-4">
+      <div className="glass-card p-4 h-[280px] flex flex-col">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-arctic" />
+            <h4 className="text-xs font-bold uppercase tracking-wider">Incident Volume Trend</h4>
+          </div>
+          <div className="flex bg-navy/50 border border-border-subtle rounded-md p-0.5">
+            <button 
+              onClick={() => setView('daily')}
+              className={cn(
+                "px-3 py-1 text-[10px] font-mono rounded transition-colors",
+                view === 'daily' ? "bg-ice/20 text-arctic" : "text-text-secondary hover:text-arctic"
+              )}
+            >
+              DAILY
+            </button>
+            <button 
+              onClick={() => setView('weekly')}
+              className={cn(
+                "px-3 py-1 text-[10px] font-mono rounded transition-colors",
+                view === 'weekly' ? "bg-ice/20 text-arctic" : "text-text-secondary hover:text-arctic"
+              )}
+            >
+              WEEKLY
+            </button>
+          </div>
+        </div>
+        <div className="flex-1">
+          <Line data={view === 'daily' ? dailyTrendData : weeklyTrendData} options={trendChartOptions} />
+        </div>
+      </div>
+
+      <div className="glass-card p-4 h-[280px] flex flex-col">
+        <div className="flex items-center gap-2 mb-4">
+          <Clock className="w-4 h-4 text-arctic" />
+          <h4 className="text-xs font-bold uppercase tracking-wider">Avg. Resolution Time (SLA Performance)</h4>
+        </div>
+        <div className="flex-1">
+          <Bar data={resolutionTrendData} options={trendChartOptions} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const IncidentTable = ({ onRowClick }: { onRowClick: (incident: any) => void }) => {
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -647,7 +809,9 @@ const IncidentTable = ({ onRowClick }: { onRowClick: (incident: any) => void }) 
   }, [searchTerm]);
 
   return (
-    <div className="glass-card mx-4 mb-4 flex flex-col">
+    <div className="flex flex-col">
+      <IncidentTrendAnalysis />
+      <div className="glass-card mx-4 mb-4 flex flex-col">
       <div className="p-4 border-b border-border-subtle flex justify-between items-center bg-slate/20">
         <h3 className="text-sm font-bold">Active Security Incidents</h3>
         <div className="flex gap-3">
@@ -758,6 +922,7 @@ const IncidentTable = ({ onRowClick }: { onRowClick: (incident: any) => void }) 
         </div>
       </div>
     </div>
+  </div>
   );
 };
 
