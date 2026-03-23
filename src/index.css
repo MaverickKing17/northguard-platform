@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-navy: #0B1B3E;
+  --color-slate: #1A2F5A;
+  --color-ice: #4A90D9;
+  --color-arctic: #7EC8E3;
+  --color-amber: #F5A623;
+  --color-red: #E84040;
+  --color-green: #2ECC71;
+  --color-neutral-light: #F0F4F8;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #A8BBCF;
+  --color-border-subtle: rgba(74, 144, 217, 0.2);
+}
+
+@layer base {
+  body {
+    @apply bg-navy text-text-primary font-sans antialiased;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-slate/40 border border-border-subtle backdrop-blur-md rounded-xl shadow-lg;
+    box-shadow: 0 8px 32px 0 rgba(11, 27, 62, 0.37);
+  }
+
+  .sidebar-item-active {
+    @apply border-l-4 border-ice bg-ice/10 text-text-primary;
+  }
+
+  .sidebar-item-hover {
+    @apply hover:bg-ice/5 hover:text-text-primary transition-all duration-200;
+  }
+
+  .kpi-card {
+    @apply bg-slate/40 border border-border-subtle backdrop-blur-md rounded-xl shadow-lg p-4 flex flex-col gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-ice/50;
+    box-shadow: 0 8px 32px 0 rgba(11, 27, 62, 0.37);
+  }
+
+  .btn-primary {
+    @apply bg-ice/10 border border-ice/30 text-arctic px-3 py-1.5 rounded-md text-xs font-mono hover:bg-ice/20 transition-all;
+  }
+
+  .badge-critical {
+    @apply bg-red/20 text-red border border-red/30 px-2 py-0.5 rounded-full text-[10px] font-bold;
+  }
+
+  .badge-high {
+    @apply bg-amber/20 text-amber border border-amber/30 px-2 py-0.5 rounded-full text-[10px] font-bold;
+  }
+
+  .badge-medium {
+    @apply bg-ice/20 text-ice border border-ice/30 px-2 py-0.5 rounded-full text-[10px] font-bold;
+  }
+
+  .badge-info {
+    @apply bg-text-secondary/20 text-text-secondary border border-text-secondary/30 px-2 py-0.5 rounded-full text-[10px] font-bold;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-navy;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-ice/50;
+}
+
+@keyframes pulse-green {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(46, 204, 113, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+}
+
+.pulse-green {
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-red {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(232, 64, 64, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(232, 64, 64, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(232, 64, 64, 0); }
+}
+
+.pulse-red {
+  animation: pulse-red 2s infinite;
+}
