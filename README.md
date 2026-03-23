@@ -1,3 +1,4 @@
+
 🛡️ Northguard: AI Agent Security & Observability
 Northguard is an enterprise-grade real-time security observability dashboard designed for autonomous AI agents. As AI integration scales, the risk of data leakage and adversarial manipulation grows. Northguard provides a robust firewall and telemetry suite to monitor, detect, and mitigate risks across diverse LLM architectures and multi-platform deployments.
 
