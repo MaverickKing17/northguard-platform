@@ -3,6 +3,7 @@
 @theme {
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-ms: "Segoe UI", "Tahoma", "Geneva", "Verdana", sans-serif;
 
   --color-navy: #0B1B3E;
   --color-slate: #1A2F5A;

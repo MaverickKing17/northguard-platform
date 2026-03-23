@@ -1385,60 +1385,60 @@ export default function App() {
         {renderContent()}
 
         {/* Footer */}
-        <footer className="mt-auto border-t border-border-subtle bg-slate/10">
+        <footer className="mt-auto border-t border-border-subtle bg-slate/30 font-ms">
           <div className="p-8 grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-1">
               <div className="flex items-center gap-2 mb-4">
                 <Shield className="w-6 h-6 text-ice" />
-                <span className="text-sm font-bold tracking-tight">NorthGuard AI</span>
+                <span className="text-sm font-bold tracking-tight text-white">NorthGuard AI</span>
               </div>
-              <p className="text-[10px] font-mono text-text-secondary leading-relaxed max-w-xs">
+              <p className="text-[11px] text-text-secondary leading-relaxed max-w-xs">
                 The leading AI-driven cybersecurity and compliance platform for the Canadian financial services industry. 
                 Securing the future of banking through intelligent threat detection and regulatory automation.
               </p>
             </div>
             
             <div>
-              <h4 className="text-[10px] font-mono font-bold uppercase tracking-widest text-arctic mb-4">Regulatory Links</h4>
-              <ul className="flex flex-col gap-2 text-[10px] font-mono text-text-secondary">
-                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('osfi-compliance'); }} className="hover:text-arctic transition-colors">OSFI Guideline B-13</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('fintrac-reporting'); }} className="hover:text-arctic transition-colors">FINTRAC PCMLTFA Compliance</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('osfi-compliance'); }} className="hover:text-arctic transition-colors">OSFI Guideline B-10</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('audit-governance'); }} className="hover:text-arctic transition-colors">CSA Cybersecurity Disclosure</a></li>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest text-arctic mb-4">Regulatory Links</h4>
+              <ul className="flex flex-col gap-2 text-[11px] text-text-secondary">
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('osfi-compliance'); }} className="hover:text-white transition-colors">OSFI Guideline B-13</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('fintrac-reporting'); }} className="hover:text-white transition-colors">FINTRAC PCMLTFA Compliance</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('osfi-compliance'); }} className="hover:text-white transition-colors">OSFI Guideline B-10</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('audit-governance'); }} className="hover:text-white transition-colors">CSA Cybersecurity Disclosure</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-[10px] font-mono font-bold uppercase tracking-widest text-arctic mb-4">Platform</h4>
-              <ul className="flex flex-col gap-2 text-[10px] font-mono text-text-secondary">
-                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('threat-center'); }} className="hover:text-arctic transition-colors">Threat Center</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('fraud-detection'); }} className="hover:text-arctic transition-colors">Fraud Detection</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('identity-mgmt'); }} className="hover:text-arctic transition-colors">Identity & Access</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('ai-insights'); }} className="hover:text-arctic transition-colors">AI Insights</a></li>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest text-arctic mb-4">Platform</h4>
+              <ul className="flex flex-col gap-2 text-[11px] text-text-secondary">
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('threat-center'); }} className="hover:text-white transition-colors">Threat Center</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('fraud-detection'); }} className="hover:text-white transition-colors">Fraud Detection</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('identity-mgmt'); }} className="hover:text-white transition-colors">Identity & Access</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('ai-insights'); }} className="hover:text-white transition-colors">AI Insights</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-[10px] font-mono font-bold uppercase tracking-widest text-arctic mb-4">Support & Legal</h4>
-              <ul className="flex flex-col gap-2 text-[10px] font-mono text-text-secondary">
-                <li><a href="#" className="hover:text-arctic transition-colors">24/7 Incident Support</a></li>
-                <li><a href="#" className="hover:text-arctic transition-colors">Documentation Portal</a></li>
-                <li><a href="#" className="hover:text-arctic transition-colors">Privacy & Data Residency</a></li>
-                <li><a href="#" className="hover:text-arctic transition-colors">Terms of Service</a></li>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest text-arctic mb-4">Support & Legal</h4>
+              <ul className="flex flex-col gap-2 text-[11px] text-text-secondary">
+                <li><a href="#" className="hover:text-white transition-colors">24/7 Incident Support</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Documentation Portal</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Privacy & Data Residency</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
               </ul>
             </div>
           </div>
 
-          <div className="p-4 border-t border-border-subtle flex flex-col md:flex-row justify-between items-center gap-4 text-[9px] font-mono text-text-secondary px-8">
+          <div className="p-4 border-t border-border-subtle flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-text-secondary px-8 bg-black/20">
             <div className="flex flex-wrap gap-4 justify-center md:justify-start">
               <span>© 2025 NorthGuard AI Technologies Inc.</span>
               <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> HQ: Toronto, ON, Canada</span>
               <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> Data residency: Canada-East (Toronto)</span>
             </div>
             <div className="flex gap-3">
-              <span className="px-2 py-0.5 border border-border-subtle rounded bg-slate/20">SOC 2 TYPE II</span>
-              <span className="px-2 py-0.5 border border-border-subtle rounded bg-slate/20">ISO 27001:2022</span>
-              <span className="px-2 py-0.5 border border-border-subtle rounded bg-slate/20">PCI DSS COMPLIANT</span>
+              <span className="px-2 py-0.5 border border-border-subtle rounded bg-slate/40 text-arctic">SOC 2 TYPE II</span>
+              <span className="px-2 py-0.5 border border-border-subtle rounded bg-slate/40 text-arctic">ISO 27001:2022</span>
+              <span className="px-2 py-0.5 border border-border-subtle rounded bg-slate/40 text-arctic">PCI DSS COMPLIANT</span>
             </div>
           </div>
         </footer>

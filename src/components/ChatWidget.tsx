@@ -177,7 +177,7 @@ export const ChatWidget = () => {
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300",
-          isOpen ? "bg-red text-white rotate-90" : "bg-ice text-navy"
+          isOpen ? "bg-red text-white rotate-90" : "bg-amber text-navy"
         )}
       >
         {isOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6" />}
