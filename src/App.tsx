@@ -33,6 +33,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
+import { ChatWidget } from './components/ChatWidget';
+
 // --- Utility ---
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -143,61 +145,66 @@ const DATA = {
 
 // --- Components ---
 
-const Sidebar = ({ collapsed, setCollapsed }: { collapsed: boolean, setCollapsed: (v: boolean) => void }) => {
+const Sidebar = ({ collapsed, setCollapsed, activeView, setActiveView }: { 
+  collapsed: boolean, 
+  setCollapsed: (v: boolean) => void,
+  activeView: string,
+  setActiveView: (v: string) => void
+}) => {
   const sections = [
     {
       title: 'Overview',
       items: [
-        { icon: LayoutDashboard, label: 'Security Overview', active: true },
+        { icon: LayoutDashboard, label: 'Security Overview', id: 'overview' },
       ]
     },
     {
       title: 'Threat Intelligence',
       items: [
-        { icon: ShieldAlert, label: 'Threat Center' },
-        { icon: Activity, label: 'Cyber Monitoring' },
-        { icon: Crosshair, label: 'Threat Hunting' },
+        { icon: ShieldAlert, label: 'Threat Center', id: 'threat-center' },
+        { icon: Activity, label: 'Cyber Monitoring', id: 'cyber-monitoring' },
+        { icon: Crosshair, label: 'Threat Hunting', id: 'threat-hunting' },
       ]
     },
     {
       title: 'Fraud & Financial Crime',
       items: [
-        { icon: AlertTriangle, label: 'Fraud Detection' },
-        { icon: Scale, label: 'AML & FINTRAC Monitoring' },
-        { icon: Zap, label: 'Transaction Risk' },
+        { icon: AlertTriangle, label: 'Fraud Detection', id: 'fraud-detection' },
+        { icon: Scale, label: 'AML & FINTRAC Monitoring', id: 'aml-fintrac' },
+        { icon: Zap, label: 'Transaction Risk', id: 'transaction-risk' },
       ]
     },
     {
       title: 'Compliance & Regulatory',
       items: [
-        { icon: FileText, label: 'OSFI Compliance' },
-        { icon: FileText, label: 'FINTRAC Reporting' },
-        { icon: Scale, label: 'Audit & Governance' },
-        { icon: UserCheck, label: 'Policy Management' },
+        { icon: FileText, label: 'OSFI Compliance', id: 'osfi-compliance' },
+        { icon: FileText, label: 'FINTRAC Reporting', id: 'fintrac-reporting' },
+        { icon: Scale, label: 'Audit & Governance', id: 'audit-governance' },
+        { icon: UserCheck, label: 'Policy Management', id: 'policy-management' },
       ]
     },
     {
       title: 'Identity & Access',
       items: [
-        { icon: Users, label: 'Identity Management' },
-        { icon: Lock, label: 'Privileged Access (PAM)' },
-        { icon: Lock, label: 'MFA & Authentication' },
+        { icon: Users, label: 'Identity Management', id: 'identity-mgmt' },
+        { icon: Lock, label: 'Privileged Access (PAM)', id: 'pam' },
+        { icon: Lock, label: 'MFA & Authentication', id: 'mfa' },
       ]
     },
     {
       title: 'Intelligence & Reports',
       items: [
-        { icon: BarChart3, label: 'Executive Reports' },
-        { icon: Zap, label: 'AI Insights' },
-        { icon: Download, label: 'Data Exports' },
+        { icon: BarChart3, label: 'Executive Reports', id: 'exec-reports' },
+        { icon: Zap, label: 'AI Insights', id: 'ai-insights' },
+        { icon: Download, label: 'Data Exports', id: 'data-exports' },
       ]
     },
     {
       title: 'Settings',
       items: [
-        { icon: Settings, label: 'Configuration' },
-        { icon: Share2, label: 'Integrations' },
-        { icon: Users, label: 'Team & Roles' },
+        { icon: Settings, label: 'Configuration', id: 'config' },
+        { icon: Share2, label: 'Integrations', id: 'integrations' },
+        { icon: Users, label: 'Team & Roles', id: 'team-roles' },
       ]
     }
   ];
@@ -218,12 +225,13 @@ const Sidebar = ({ collapsed, setCollapsed }: { collapsed: boolean, setCollapsed
             {section.items.map((item, i) => (
               <button
                 key={i}
+                onClick={() => setActiveView(item.id)}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 group",
-                  item.active ? "sidebar-item-active" : "sidebar-item-hover text-text-secondary"
+                  "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 group w-full text-left",
+                  activeView === item.id ? "sidebar-item-active" : "sidebar-item-hover text-text-secondary"
                 )}
               >
-                <item.icon className={cn("w-4 h-4 flex-shrink-0", item.active ? "text-arctic" : "group-hover:text-text-primary")} />
+                <item.icon className={cn("w-4 h-4 flex-shrink-0", activeView === item.id ? "text-arctic" : "group-hover:text-text-primary")} />
                 {!collapsed && <span className="text-sm font-medium whitespace-nowrap">{item.label}</span>}
               </button>
             ))}
@@ -1171,11 +1179,56 @@ export default function App() {
   const [collapsed, setCollapsed] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState<any>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [activeView, setActiveView] = useState('overview');
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const renderContent = () => {
+    if (activeView === 'overview') {
+      return (
+        <div className="flex-1 flex flex-col gap-4">
+          <div className="kpi-grid">
+            {DATA.kpis.map(kpi => <KPICard key={kpi.id} kpi={kpi} />)}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4">
+            <div className="lg:col-span-2 h-[400px]">
+              <ThreatIntelligence />
+            </div>
+            <div className="h-[400px]">
+              <AlertFeed />
+            </div>
+          </div>
+
+          <BottomPanels />
+
+          <IncidentTable onRowClick={(inc) => setSelectedIncident(inc)} />
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
+        <div className="w-16 h-16 rounded-full bg-ice/10 flex items-center justify-center mb-4">
+          <Activity className="w-8 h-8 text-arctic animate-pulse" />
+        </div>
+        <h2 className="text-xl font-bold mb-2">Module: {activeView.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</h2>
+        <p className="text-sm text-text-secondary font-mono max-w-md">
+          This module is currently processing real-time data from Royal Dominion Financial Group's core banking systems. 
+          AI-driven insights will be available shortly.
+        </p>
+        <button 
+          onClick={() => setActiveView('overview')}
+          className="mt-6 px-4 py-2 bg-ice text-navy font-bold rounded-lg text-xs hover:bg-arctic transition-all"
+        >
+          Return to Overview
+        </button>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-navy text-text-primary selection:bg-ice/30">
@@ -1188,7 +1241,7 @@ export default function App() {
           >
             <Menu className="w-5 h-5 text-text-secondary" />
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setActiveView('overview')}>
             <Shield className="w-6 h-6 text-ice" />
             <div className="flex flex-col -gap-1">
               <span className="text-sm font-bold tracking-tight">NorthGuard AI</span>
@@ -1242,7 +1295,12 @@ export default function App() {
       </header>
 
       {/* Sidebar */}
-      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+      <Sidebar 
+        collapsed={collapsed} 
+        setCollapsed={setCollapsed} 
+        activeView={activeView} 
+        setActiveView={setActiveView} 
+      />
 
       {/* Main Content */}
       <main className={cn(
@@ -1257,9 +1315,11 @@ export default function App() {
               <span>/</span>
               <span>Security Operations</span>
               <span>/</span>
-              <span className="text-arctic">Overview</span>
+              <span className="text-arctic">{activeView === 'overview' ? 'Overview' : activeView.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</span>
             </div>
-            <h1 className="text-2xl font-bold tracking-tight">Security Overview</h1>
+            <h1 className="text-2xl font-bold tracking-tight">
+              {activeView === 'overview' ? 'Security Overview' : activeView.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+            </h1>
             <p className="text-xs text-text-secondary font-mono mt-1">
               Real-time monitoring for Royal Dominion Financial Group — As of {format(currentTime, 'MMM dd, yyyy · HH:mm:ss')} EDT
             </p>
@@ -1272,47 +1332,77 @@ export default function App() {
             <button className="btn-primary flex items-center gap-2">
               <Download className="w-3.5 h-3.5" /> Export Report
             </button>
-            <button className="btn-primary flex items-center gap-2">
+            <button className="btn-primary flex items-center gap-2" onClick={() => window.location.reload()}>
               <RefreshCw className="w-3.5 h-3.5" /> Refresh
             </button>
           </div>
         </div>
 
-        {/* Dashboard Grid */}
-        <div className="flex-1 flex flex-col gap-4">
-          <div className="kpi-grid">
-            {DATA.kpis.map(kpi => <KPICard key={kpi.id} kpi={kpi} />)}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4">
-            <div className="lg:col-span-2 h-[400px]">
-              <ThreatIntelligence />
-            </div>
-            <div className="h-[400px]">
-              <AlertFeed />
-            </div>
-          </div>
-
-          <BottomPanels />
-
-          <IncidentTable onRowClick={(inc) => setSelectedIncident(inc)} />
-        </div>
+        {/* Dynamic Content */}
+        {renderContent()}
 
         {/* Footer */}
-        <footer className="mt-auto p-4 border-t border-border-subtle bg-slate/10 flex justify-between items-center text-[10px] font-mono text-text-secondary">
-          <div>© 2025 NorthGuard AI Technologies Inc. — All Rights Reserved</div>
-          <div className="flex gap-4">
-            <span>Data Residency: Canada (Toronto, ON)</span>
-            <span>SOC 2 Type II Certified</span>
-            <span>ISO 27001:2022</span>
+        <footer className="mt-auto border-t border-border-subtle bg-slate/10">
+          <div className="p-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="col-span-1 md:col-span-1">
+              <div className="flex items-center gap-2 mb-4">
+                <Shield className="w-6 h-6 text-ice" />
+                <span className="text-sm font-bold tracking-tight">NorthGuard AI</span>
+              </div>
+              <p className="text-[10px] font-mono text-text-secondary leading-relaxed max-w-xs">
+                The leading AI-driven cybersecurity and compliance platform for the Canadian financial services industry. 
+                Securing the future of banking through intelligent threat detection and regulatory automation.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="text-[10px] font-mono font-bold uppercase tracking-widest text-arctic mb-4">Regulatory Links</h4>
+              <ul className="flex flex-col gap-2 text-[10px] font-mono text-text-secondary">
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('osfi-compliance'); }} className="hover:text-arctic transition-colors">OSFI Guideline B-13</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('fintrac-reporting'); }} className="hover:text-arctic transition-colors">FINTRAC PCMLTFA Compliance</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('osfi-compliance'); }} className="hover:text-arctic transition-colors">OSFI Guideline B-10</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('audit-governance'); }} className="hover:text-arctic transition-colors">CSA Cybersecurity Disclosure</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-[10px] font-mono font-bold uppercase tracking-widest text-arctic mb-4">Platform</h4>
+              <ul className="flex flex-col gap-2 text-[10px] font-mono text-text-secondary">
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('threat-center'); }} className="hover:text-arctic transition-colors">Threat Center</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('fraud-detection'); }} className="hover:text-arctic transition-colors">Fraud Detection</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('identity-mgmt'); }} className="hover:text-arctic transition-colors">Identity & Access</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); setActiveView('ai-insights'); }} className="hover:text-arctic transition-colors">AI Insights</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-[10px] font-mono font-bold uppercase tracking-widest text-arctic mb-4">Support & Legal</h4>
+              <ul className="flex flex-col gap-2 text-[10px] font-mono text-text-secondary">
+                <li><a href="#" className="hover:text-arctic transition-colors">24/7 Incident Support</a></li>
+                <li><a href="#" className="hover:text-arctic transition-colors">Documentation Portal</a></li>
+                <li><a href="#" className="hover:text-arctic transition-colors">Privacy & Data Residency</a></li>
+                <li><a href="#" className="hover:text-arctic transition-colors">Terms of Service</a></li>
+              </ul>
+            </div>
           </div>
-          <div className="flex gap-4">
-            <a href="#" className="hover:text-arctic transition-colors">Support</a>
-            <a href="#" className="hover:text-arctic transition-colors">Docs</a>
-            <a href="#" className="hover:text-arctic transition-colors">Privacy Policy</a>
+
+          <div className="p-4 border-t border-border-subtle flex flex-col md:flex-row justify-between items-center gap-4 text-[9px] font-mono text-text-secondary px-8">
+            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+              <span>© 2025 NorthGuard AI Technologies Inc.</span>
+              <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> HQ: Toronto, ON, Canada</span>
+              <span className="flex items-center gap-1"><Globe className="w-3 h-3" /> Data residency: Canada-East (Toronto)</span>
+            </div>
+            <div className="flex gap-3">
+              <span className="px-2 py-0.5 border border-border-subtle rounded bg-slate/20">SOC 2 TYPE II</span>
+              <span className="px-2 py-0.5 border border-border-subtle rounded bg-slate/20">ISO 27001:2022</span>
+              <span className="px-2 py-0.5 border border-border-subtle rounded bg-slate/20">PCI DSS COMPLIANT</span>
+            </div>
           </div>
         </footer>
       </main>
+
+      {/* Chat Widget */}
+      <ChatWidget />
 
       {/* Incident Detail Drawer */}
       <IncidentDrawer 
