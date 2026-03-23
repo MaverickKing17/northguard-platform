@@ -10,8 +10,10 @@ import {
   FileText, Scale, Users, Lock, BarChart3, 
   Settings, Share2, Download, RefreshCw, 
   Menu, X, ExternalLink, Filter, ArrowUp, ArrowDown,
-  Clock, MapPin, Globe, UserCheck, Database, Zap
+  Clock, MapPin, Globe, UserCheck, Database, Zap,
+  BrainCircuit, Link, AlertCircle, Sparkles
 } from 'lucide-react';
+import { GoogleGenAI } from "@google/genai";
 import { 
   Chart as ChartJS, 
   CategoryScale, 
@@ -78,6 +80,9 @@ const chartDefaults = {
 
 Object.assign(ChartJS.defaults, chartDefaults);
 
+// --- AI Service ---
+const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+
 // --- Mock Data ---
 const DATA = {
   kpis: [
@@ -94,16 +99,45 @@ const DATA = {
     { id: 5, severity: 'HIGH', category: 'AML', title: 'AML Pattern — Structuring Detected (Smurfing)', desc: 'AI model detected 17 transactions just below $10,000 CAD threshold across 9 accounts in 6 hours.', meta: 'Branch: Toronto Financial District #042 | Pattern Score: 94/100', time: '1.5 hours ago' },
   ],
   incidents: [
-    { id: 'INC-2025-0847', severity: 'CRITICAL', category: 'Fraud', title: 'Wire Transfer Fraud — UAE Beneficiary', entity: 'ACC-00984432', assignee: 'M. Okonkwo', status: 'Investigating', created: '14m ago', sla: '2h' },
-    { id: 'INC-2025-0846', severity: 'CRITICAL', category: 'Cyber', title: 'Credential Stuffing — Corp Banking Portal', entity: 'svc-corp-portal', assignee: 'K. Patel', status: 'Containment', created: '22m ago', sla: '2h' },
-    { id: 'INC-2025-0845', severity: 'HIGH', category: 'AML', title: 'Structuring Pattern — 17 Transactions', entity: 'BR-042-Toronto', assignee: 'L. Tremblay', status: 'Under Review', created: '1.5h ago', sla: '8h' },
-    { id: 'INC-2025-0844', severity: 'HIGH', category: 'Identity', title: 'Admin DB Export — After Hours', entity: 'j.kowalski@rdfi', assignee: 'S. Chen', status: 'Escalated', created: '1h ago', sla: '4h' },
-    { id: 'INC-2025-0843', severity: 'HIGH', category: 'Third-Party', title: 'StoreSafe Vendor Access Anomaly', entity: 'VND-2291', assignee: 'R. Singh', status: 'Open', created: '41m ago', sla: '8h' },
-    { id: 'INC-2025-0842', severity: 'HIGH', category: 'Identity', title: 'MFA Bypass — SVP Account', entity: 'm.okafor@rdfi', assignee: 'K. Patel', status: 'Monitoring', created: '2h ago', sla: '4h' },
-    { id: 'INC-2025-0841', severity: 'MEDIUM', category: 'Fraud', title: 'Phishing Campaign — Wealth Clients', entity: 'PHI-2025-0318', assignee: 'C. Bouchard', status: 'Remediation', created: '2.5h ago', sla: '24h' },
-    { id: 'INC-2025-0840', severity: 'MEDIUM', category: 'Cyber', title: 'API Abuse — Open Banking Endpoint', entity: 'OBK-PAYLINK-017', assignee: 'R. Singh', status: 'Monitoring', created: '3h ago', sla: '24h' },
-    { id: 'INC-2025-0839', severity: 'MEDIUM', category: 'Compliance', title: 'PCI DSS Control Gap — Card Vault', entity: 'PCI-CTRL-44', assignee: 'L. Tremblay', status: 'In Progress', created: '5h ago', sla: '48h' },
-    { id: 'INC-2025-0838', severity: 'INFO', category: 'Compliance', title: 'OSFI Submission — Pending CFO Sign-off', entity: 'RC1-Q1-2025', assignee: 'CFO Office', status: 'Pending', created: '4h ago', sla: '5d' },
+    { 
+      id: 'INC-2025-0847', 
+      severity: 'CRITICAL', 
+      category: 'Fraud', 
+      title: 'Wire Transfer Fraud — UAE Beneficiary', 
+      entity: 'ACC-00984432', 
+      assignee: 'M. Okonkwo', 
+      status: 'Investigating', 
+      created: '14m ago', 
+      sla: '2h',
+      correlatedAlerts: [
+        { id: 'ALR-442', title: 'Unusual Outbound Connection', source: 'Firewall-01', time: '16m ago' },
+        { id: 'ALR-445', title: 'Privileged Account Login (UAE)', source: 'AD-Auth', time: '18m ago' },
+        { id: 'ALR-448', title: 'Large Transfer Initiation', source: 'Core-Banking', time: '14m ago' }
+      ]
+    },
+    { 
+      id: 'INC-2025-0846', 
+      severity: 'CRITICAL', 
+      category: 'Cyber', 
+      title: 'Credential Stuffing — Corp Banking Portal', 
+      entity: 'svc-corp-portal', 
+      assignee: 'K. Patel', 
+      status: 'Containment', 
+      created: '22m ago', 
+      sla: '2h',
+      correlatedAlerts: [
+        { id: 'ALR-390', title: 'High Auth Failure Rate', source: 'WAF-02', time: '25m ago' },
+        { id: 'ALR-392', title: 'Tor Exit Node Detected', source: 'IDS-01', time: '24m ago' }
+      ]
+    },
+    { id: 'INC-2025-0845', severity: 'HIGH', category: 'AML', title: 'Structuring Pattern — 17 Transactions', entity: 'BR-042-Toronto', assignee: 'L. Tremblay', status: 'Under Review', created: '1.5h ago', sla: '8h', correlatedAlerts: [] },
+    { id: 'INC-2025-0844', severity: 'HIGH', category: 'Identity', title: 'Admin DB Export — After Hours', entity: 'j.kowalski@rdfi', assignee: 'S. Chen', status: 'Escalated', created: '1h ago', sla: '4h', correlatedAlerts: [] },
+    { id: 'INC-2025-0843', severity: 'HIGH', category: 'Third-Party', title: 'StoreSafe Vendor Access Anomaly', entity: 'VND-2291', assignee: 'R. Singh', status: 'Open', created: '41m ago', sla: '8h', correlatedAlerts: [] },
+    { id: 'INC-2025-0842', severity: 'HIGH', category: 'Identity', title: 'MFA Bypass — SVP Account', entity: 'm.okafor@rdfi', assignee: 'K. Patel', status: 'Monitoring', created: '2h ago', sla: '4h', correlatedAlerts: [] },
+    { id: 'INC-2025-0841', severity: 'MEDIUM', category: 'Fraud', title: 'Phishing Campaign — Wealth Clients', entity: 'PHI-2025-0318', assignee: 'C. Bouchard', status: 'Remediation', created: '2.5h ago', sla: '24h', correlatedAlerts: [] },
+    { id: 'INC-2025-0840', severity: 'MEDIUM', category: 'Cyber', title: 'API Abuse — Open Banking Endpoint', entity: 'OBK-PAYLINK-017', assignee: 'R. Singh', status: 'Monitoring', created: '3h ago', sla: '24h', correlatedAlerts: [] },
+    { id: 'INC-2025-0839', severity: 'MEDIUM', category: 'Compliance', title: 'PCI DSS Control Gap — Card Vault', entity: 'PCI-CTRL-44', assignee: 'L. Tremblay', status: 'In Progress', created: '5h ago', sla: '48h', correlatedAlerts: [] },
+    { id: 'INC-2025-0838', severity: 'INFO', category: 'Compliance', title: 'OSFI Submission — Pending CFO Sign-off', entity: 'RC1-Q1-2025', assignee: 'CFO Office', status: 'Pending', created: '4h ago', sla: '5d', correlatedAlerts: [] },
   ]
 };
 
@@ -728,7 +762,35 @@ const IncidentTable = ({ onRowClick }: { onRowClick: (incident: any) => void }) 
 };
 
 const IncidentDrawer = ({ incident, onClose }: { incident: any, onClose: () => void }) => {
+  const [analyzing, setAnalyzing] = useState(false);
+  const [rootCause, setRootCause] = useState<string | null>(null);
+
   if (!incident) return null;
+
+  const runAIAnalysis = async () => {
+    setAnalyzing(true);
+    try {
+      const model = genAI.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: `Analyze this security incident and correlated alerts to suggest a potential root cause and mitigation steps for a Canadian financial institution.
+        
+        Incident: ${incident.title}
+        Severity: ${incident.severity}
+        Entity: ${incident.entity}
+        Correlated Alerts: ${JSON.stringify(incident.correlatedAlerts || [])}
+        
+        Provide a concise analysis in 3-4 bullet points. Focus on technical root cause and specific Canadian regulatory impact (e.g. OSFI B-13).`,
+      });
+      
+      const response = await model;
+      setRootCause(response.text || "Unable to generate analysis.");
+    } catch (error) {
+      console.error("AI Analysis failed:", error);
+      setRootCause("AI analysis unavailable. Please check system logs.");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -788,6 +850,52 @@ const IncidentDrawer = ({ incident, onClose }: { incident: any, onClose: () => v
             </div>
           </section>
 
+          {/* AI Root Cause Analysis Section */}
+          <section className="p-4 bg-ice/5 border border-ice/20 rounded-xl relative overflow-hidden">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-[10px] uppercase font-mono text-arctic flex items-center gap-2">
+                <BrainCircuit className="w-3.5 h-3.5" /> AI Root Cause Analysis
+              </h3>
+              {!rootCause && !analyzing && (
+                <button 
+                  onClick={runAIAnalysis}
+                  className="flex items-center gap-1.5 px-2 py-1 bg-ice/10 border border-ice/30 rounded text-[9px] font-mono text-arctic hover:bg-ice/20 transition-all"
+                >
+                  <Sparkles className="w-3 h-3" /> Run Analysis
+                </button>
+              )}
+            </div>
+            
+            {analyzing ? (
+              <div className="flex flex-col gap-3 py-2">
+                <div className="flex items-center gap-3">
+                  <RefreshCw className="w-4 h-4 text-arctic animate-spin" />
+                  <span className="text-xs font-mono text-text-secondary animate-pulse">Correlating alerts and identifying patterns...</span>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-2 bg-ice/10 rounded w-3/4 animate-pulse" />
+                  <div className="h-2 bg-ice/10 rounded w-1/2 animate-pulse" />
+                </div>
+              </div>
+            ) : rootCause ? (
+              <div className="text-xs text-text-secondary leading-relaxed space-y-2">
+                <div className="flex items-start gap-2 bg-navy/40 p-2 rounded border border-border-subtle/50 mb-2">
+                  <AlertCircle className="w-3.5 h-3.5 text-amber mt-0.5 flex-shrink-0" />
+                  <span className="text-[10px] font-mono text-amber">Potential Root Cause Identified</span>
+                </div>
+                <div className="prose prose-invert prose-xs max-w-none">
+                  {rootCause.split('\n').map((line, i) => (
+                    <p key={i} className="m-0">{line}</p>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="text-[10px] text-text-secondary font-mono italic">
+                Correlate {incident.correlatedAlerts?.length || 0} alerts to identify the primary attack vector.
+              </p>
+            )}
+          </section>
+
           <section className="p-4 bg-navy/30 border border-border-subtle rounded-xl">
             <h3 className="text-[10px] uppercase font-mono text-arctic mb-2 flex items-center gap-2">
               <Zap className="w-3 h-3" /> AI Summary
@@ -798,6 +906,26 @@ const IncidentDrawer = ({ incident, onClose }: { incident: any, onClose: () => v
               Recommended immediate containment of the affected endpoint and credential rotation for associated service accounts.
             </p>
           </section>
+
+          {/* Correlated Alerts Section */}
+          {incident.correlatedAlerts && incident.correlatedAlerts.length > 0 && (
+            <section>
+              <h3 className="text-xs font-bold mb-3 flex items-center gap-2 text-text-secondary">
+                <Link className="w-4 h-4" /> Correlated Alerts ({incident.correlatedAlerts.length})
+              </h3>
+              <div className="flex flex-col gap-2">
+                {incident.correlatedAlerts.map((alert: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between p-2 bg-navy/20 border border-border-subtle rounded-lg hover:border-ice/30 transition-all cursor-pointer">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-text-primary">{alert.title}</span>
+                      <span className="text-[9px] font-mono text-text-secondary">{alert.source}</span>
+                    </div>
+                    <span className="text-[9px] font-mono text-text-secondary">{alert.time}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section>
             <h3 className="text-xs font-bold mb-4 flex items-center gap-2">
