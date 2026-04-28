@@ -2,6 +2,7 @@ import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import './lib/firebase.ts';
 
 // Polyfill process for libraries that expect it
 if (typeof window !== 'undefined' && !window.process) {

@@ -13,7 +13,6 @@ import {
   Clock, MapPin, Globe, UserCheck, Database, Zap,
   TrendingUp, BrainCircuit, Link, AlertCircle, Sparkles
 } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
 import { 
   Chart as ChartJS, 
   CategoryScale, 
@@ -82,19 +81,6 @@ const chartDefaults = {
 };
 
 ChartJS.defaults.set(chartDefaults);
-
-// --- AI Service ---
-const getGeminiKey = () => {
-  try {
-    // Vite's define plugin replaces the full string process.env.GEMINI_API_KEY
-    // but we should still be careful about the process object itself.
-    const key = typeof process !== 'undefined' && process.env ? process.env.GEMINI_API_KEY : '';
-    return key || "";
-  } catch (e) {
-    return "";
-  }
-};
-const genAI = new GoogleGenAI({ apiKey: getGeminiKey() });
 
 // --- Mock Data ---
 const DATA = {
@@ -959,20 +945,27 @@ const IncidentDrawer = ({ incident, onClose }: { incident: any, onClose: () => v
   const runAIAnalysis = async () => {
     setAnalyzing(true);
     try {
-      const model = genAI.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `Analyze this security incident and correlated alerts to suggest a potential root cause and mitigation steps for a Canadian financial institution.
-        
-        Incident: ${incident.title}
-        Severity: ${incident.severity}
-        Entity: ${incident.entity}
-        Correlated Alerts: ${JSON.stringify(incident.correlatedAlerts || [])}
-        
-        Provide a concise analysis in 3-4 bullet points. Focus on technical root cause and specific Canadian regulatory impact (e.g. OSFI B-13).`,
+      // Fetch analysis from server-side Claude endpoint
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{
+            role: 'user',
+            content: `Analyze this security incident and correlated alerts to suggest a potential root cause and mitigation steps for a Canadian financial institution.
+            
+            Incident: ${incident.title}
+            Severity: ${incident.severity}
+            Entity: ${incident.entity}
+            Correlated Alerts: ${JSON.stringify(incident.correlatedAlerts || [])}
+            
+            Provide a concise analysis in 3-4 bullet points. Focus on technical root cause and specific Canadian regulatory impact (e.g. OSFI B-13).`
+          }]
+        })
       });
       
-      const response = await model;
-      setRootCause(response.text || "Unable to generate analysis.");
+      const data = await response.json();
+      setRootCause(data.content?.text || "Unable to generate analysis.");
     } catch (error) {
       console.error("AI Analysis failed:", error);
       setRootCause("AI analysis unavailable. Please check system logs.");
